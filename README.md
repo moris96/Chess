@@ -1,1 +1,1 @@
-# Chess
+# Chess is currently in development 
