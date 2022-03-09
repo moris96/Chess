@@ -22,10 +22,14 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = ChessEngine.GameState()
+    validMoves = gs.getValidMoves()
+    moveMade = False
+
     loadImages()
     running = True
     sqSelected = () #no square is selected
     playerClicks = [] #keeps track of player clicks
+
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -41,12 +45,23 @@ def main():
                     sqSelected = (row, col)
                     playerClicks.append(sqSelected)
                 if len(playerClicks) == 2: #after 2nd click
-                    move = ChessEngine.move(playerClicks[0], playerClicks[1], gs.board)
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                     print(move.getChessNotation())
+                    if move in validMoves:
+                        gs.makeMove(move)
+                        moveMade = True
                     gs.makeMove(move)
                     sqSelected= () #reset user clicks
                     playerClicks = []
 
+                elif e.type == p.KEYDOWN: #key shortcuts
+                    if e.key == p.K_z: #undo move when 'z' is clicked
+                        gs.undoMove()
+                        moveMade = True
+
+                if moveMade:
+                    validMoves = gs.getValidMoves()
+                    moveMade = False
 
             drawGameState(screen, gs)
             clock.tick(MAX_FPS)
@@ -76,6 +91,6 @@ def drawPieces(screen, board):
                 screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
 
-
+#run app
 if __name__ == '__main__':
     main()
