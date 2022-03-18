@@ -1,4 +1,3 @@
-
 class GameState():
     def __init__(self):
         self.board = [
@@ -12,6 +11,7 @@ class GameState():
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
         self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
+
 
         self.whiteToMove = True
         self.moveLog = []
@@ -34,7 +34,9 @@ class GameState():
 
 
     def getValidMoves(self): #make valid chess moves
-        return self.getAllPossibleMoves()
+        moves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove
+        return moves
 
 
     def getAllPossibleMoves(self):
@@ -44,24 +46,7 @@ class GameState():
                 turn = self.board[r][c][0]
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                     piece = self.board[r][c][1]
-                    if piece == 'p': #pawn piece
-                        self.getPawnMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves) #calls appropriate move functions based on move type
-                    elif piece == 'R': #rook piece
-                        self.getRookMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves)
-                    elif piece == 'N': #knight piece
-                        self.getKnightMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves)
-                    elif piece == 'B': #bishop piece
-                        self.getBishopMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves)
-                    elif piece == 'Q': #queen piece
-                        self.getQueenMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves)
-                    elif piece == 'K': #king piece
-                        self.getKingMoves(r, c, moves)
-                        self.moveFunctions[piece](r, c, moves)
+                    self.moveFunctions[piece](r, c, moves) #calls appropriate move functions based on move type
         return moves
 
 
@@ -71,11 +56,11 @@ class GameState():
                 moves.append(Move((r, c), (r-1, c), self.board))
                 if r == 6 and self.board[r-2][c] == "--": #2 square advance
                     moves.append(Move((r, c), (r-2, c), self.board))
-            if c-1 >= 0:
-                if self.board[r-1][c-1][0] == 'b': #enemy piece to capture
-                    moves.append(Move((r-1, c-1), (r-1, c-1), self.board))
+            if c-1 >= 0: #captures to left
+                if self.board[r-1][c-1][0] == 'b':
+                    moves.append(Move((r, c), (r-1, c-1), self.board))
             if c+1 <= 7: #captures to the right
-                if self.board[r-1][c+1][0] == 'b': #enemy piece to capture
+                if self.board[r-1][c+1][0] == 'b':
                     moves.append(Move((r, c), (r-1, c+1), self.board))
 
         else: #black pawn moves
